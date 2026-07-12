@@ -13,24 +13,18 @@ const ProgressIcon = () => (
     <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
   </svg>
 )
-const CoachIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
-  </svg>
-)
 const ProfileIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
   </svg>
 )
 
-export default function BottomNav({ isAdmin }: { isAdmin: boolean }) {
+export default function BottomNav() {
   const pathname = usePathname()
 
   const tabs = [
-    { href: '/dashboard', label: 'בית',     Icon: HomeIcon     },
+    { href: '/dashboard', label: 'בית',      Icon: HomeIcon     },
     { href: '/history',   label: 'היסטוריה', Icon: ProgressIcon },
-    ...(isAdmin ? [{ href: '/coach', label: 'מאמן', Icon: CoachIcon }] : []),
     { href: '/settings',  label: 'פרופיל',   Icon: ProfileIcon  },
   ]
 

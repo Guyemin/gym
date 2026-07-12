@@ -15,14 +15,17 @@ function fmt(s: number) {
   return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}ש'`
 }
 
-function fmtDate(iso: string) {
-  return new Intl.DateTimeFormat('he-IL', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(iso))
+function fmtDate(iso: string | null) {
+  if (!iso) return ''
+  try {
+    return new Intl.DateTimeFormat('he-IL', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(iso))
+  } catch { return '' }
 }
 
 export default async function HistoryPage() {
@@ -62,14 +65,8 @@ export default async function HistoryPage() {
     <div className="max-w-lg mx-auto px-4 py-10">
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link
-          href="/dashboard"
-          className="text-zinc-400 hover:text-white text-sm border border-zinc-800 hover:border-zinc-600 px-3 py-1.5 rounded-lg transition-colors"
-        >
-          {h.back} →
-        </Link>
-        <h1 className="text-xl font-bold text-white">{h.title}</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-white">{h.title}</h1>
       </div>
 
       {/* Stats row */}
