@@ -107,7 +107,7 @@ export default async function HistoryPage() {
                   <div>
                     <p className="text-white font-semibold text-sm">{sess.day_label ?? `יום ${sess.day_of_week}`}</p>
                     <p className="text-zinc-500 text-xs mt-0.5">{fmtDate(sess.completed_at)}</p>
-                    <div className="mt-1" onClick={e => e.preventDefault()}>
+                    <div className="mt-1">
                       <DeleteWorkoutButton sessionId={sess.id} />
                     </div>
                   </div>

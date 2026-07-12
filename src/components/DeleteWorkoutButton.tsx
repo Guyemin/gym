@@ -21,7 +21,7 @@ export default function DeleteWorkoutButton({ sessionId }: { sessionId: string }
 
   if (confirming) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" onClick={e => e.preventDefault()}>
         <span className="text-zinc-400 text-xs">{t.history.deleteConfirm}</span>
         <button
           onClick={handleDelete}
@@ -42,7 +42,7 @@ export default function DeleteWorkoutButton({ sessionId }: { sessionId: string }
 
   return (
     <button
-      onClick={() => setConfirming(true)}
+      onClick={e => { e.preventDefault(); setConfirming(true) }}
       className="text-xs text-zinc-600 hover:text-red-400 transition-colors"
     >
       {t.history.deleteBtn}
