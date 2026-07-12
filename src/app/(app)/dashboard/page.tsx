@@ -1,17 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { t, ADMIN_EMAIL } from '@/lib/i18n/translations'
-import LogoutButton from '@/components/LogoutButton'
+import { t } from '@/lib/i18n/translations'
 
 const d = t.dashboard
-
-const WEEKS = [
-  { label: 'בניית בסיס',  sub: '100% מהמשקל' },
-  { label: 'הוספת עומס',  sub: '+5% משקל'    },
-  { label: 'עומס שיא',   sub: '+10% משקל'    },
-  { label: 'שחזור',       sub: 'דילוד 90%'   },
-]
 
 function getBmiInfo(bmi: number) {
   if (bmi < 18.5) return { label: d.bmiUnder, color: 'text-blue-400',   badge: 'bg-blue-500/20 border-blue-500/30 text-blue-400' }
@@ -114,86 +106,71 @@ export default async function DashboardPage() {
   const remainingThisWeek = Math.max(0, days.length - weeklyCount)
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-10">
+    <div className="max-w-lg mx-auto px-4 pt-6 pb-4 space-y-4">
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <p className="text-zinc-500 text-sm">{d.welcomeBack}</p>
-          <h1 className="text-2xl font-bold text-white mt-0.5">
-            {profile?.full_name ?? user!.email}
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/history" className="text-sm text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-xl transition-colors">
-            {t.history.link}
-          </Link>
-          {user!.email === ADMIN_EMAIL && (
-            <Link href="/coach" className="text-sm text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-xl transition-colors">
-              {t.coach.dashboardLink}
-            </Link>
-          )}
-          <Link href="/settings" className="text-sm text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-xl transition-colors">
-            {t.settings.link}
-          </Link>
-          <LogoutButton />
-        </div>
+      {/* Welcome */}
+      <div className="mb-2">
+        <p className="text-zinc-500 text-sm">{d.welcomeBack}</p>
+        <h1 className="text-3xl font-bold text-white mt-0.5">
+          {profile?.full_name?.split(' ')[0] ?? user!.email}
+        </h1>
       </div>
 
       {/* BMI card */}
       {bmi && bmiInfo && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-zinc-400 text-sm font-medium">{d.bmiTitle}</span>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-zinc-500 text-xs font-semibold uppercase tracking-widest">{d.bmiTitle}</span>
             <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${bmiInfo.badge}`}>{bmiInfo.label}</span>
           </div>
-          <p className={`text-3xl font-bold mb-3 ${bmiInfo.color}`}>{bmi}</p>
-          <div className="relative h-2 rounded-full overflow-hidden flex mb-1">
-            <div className="w-[14%] bg-blue-500/60" />
-            <div className="w-[26%] bg-green-500/60" />
-            <div className="w-[20%] bg-orange-500/60" />
-            <div className="flex-1 bg-red-500/60" />
+          <p className={`text-4xl font-black mb-4 ${bmiInfo.color}`}>{bmi}</p>
+          <div className="relative h-2 rounded-full overflow-hidden flex mb-2">
+            <div className="w-[14%] bg-blue-500" />
+            <div className="w-[26%] bg-green-500" />
+            <div className="w-[20%] bg-orange-500" />
+            <div className="flex-1 bg-red-500" />
             <div
-              className="absolute top-1/2 w-3 h-3 bg-white rounded-full border-2 border-zinc-900 shadow"
+              className="absolute top-1/2 w-3 h-3 bg-white rounded-full border-2 border-zinc-900 shadow-lg"
               style={{ left: `${bmiMarkerPct}%`, transform: 'translate(-50%, -50%)' }}
             />
           </div>
           <div className="flex justify-between text-[10px] text-zinc-600">
-            <span>15</span><span>18.5</span><span>25</span><span>30</span><span>40</span>
+            <span>תת משקל</span><span>תקין</span><span>עודף</span><span>השמנה</span>
           </div>
         </div>
       )}
 
       {/* Nutrition card */}
       {nutrition && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4">
-          <p className="text-zinc-400 text-sm font-medium mb-3">{d.nutritionTitle}</p>
-          <div className="grid grid-cols-4 gap-2">
-            <div className="bg-zinc-800/60 rounded-xl p-3 text-center">
-              <p className="text-orange-400 font-bold text-lg">{nutrition.calories}</p>
-              <p className="text-zinc-500 text-[10px] mt-0.5">{d.nutritionCalories}</p>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-zinc-500 text-xs font-semibold uppercase tracking-widest">{d.nutritionTitle}</span>
+            <span className="text-white font-black text-xl">{nutrition.calories} <span className="text-zinc-500 text-xs font-normal">קל׳</span></span>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex-1 bg-orange-500/20 border border-orange-500/30 rounded-xl px-3 py-2.5 text-center">
+              <p className="text-orange-400 font-black text-base">{nutrition.protein}g</p>
+              <p className="text-orange-500/70 text-[10px] font-semibold uppercase mt-0.5">{d.nutritionProtein}</p>
             </div>
-            <div className="bg-zinc-800/60 rounded-xl p-3 text-center">
-              <p className="text-blue-400 font-bold text-lg">{nutrition.protein}g</p>
-              <p className="text-zinc-500 text-[10px] mt-0.5">{d.nutritionProtein}</p>
+            <div className="flex-1 bg-blue-500/20 border border-blue-500/30 rounded-xl px-3 py-2.5 text-center">
+              <p className="text-blue-400 font-black text-base">{nutrition.fat}g</p>
+              <p className="text-blue-500/70 text-[10px] font-semibold uppercase mt-0.5">{d.nutritionFat}</p>
             </div>
-            <div className="bg-zinc-800/60 rounded-xl p-3 text-center">
-              <p className="text-yellow-400 font-bold text-lg">{nutrition.fat}g</p>
-              <p className="text-zinc-500 text-[10px] mt-0.5">{d.nutritionFat}</p>
-            </div>
-            <div className="bg-zinc-800/60 rounded-xl p-3 text-center">
-              <p className="text-green-400 font-bold text-lg">{nutrition.carbs}g</p>
-              <p className="text-zinc-500 text-[10px] mt-0.5">{d.nutritionCarbs}</p>
+            <div className="flex-1 bg-green-500/20 border border-green-500/30 rounded-xl px-3 py-2.5 text-center">
+              <p className="text-green-400 font-black text-base">{nutrition.carbs}g</p>
+              <p className="text-green-500/70 text-[10px] font-semibold uppercase mt-0.5">{d.nutritionCarbs}</p>
             </div>
           </div>
           {profile?.goal_weight_kg && profile?.weight_kg && (
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800">
-              <div className="text-center">
+              <div>
                 <p className="text-white font-semibold text-sm">{profile.weight_kg} ק״ג</p>
                 <p className="text-zinc-500 text-[10px] mt-0.5">{d.currentWeight}</p>
               </div>
-              <span className="text-zinc-600 text-lg">{d.weightArrow}</span>
-              <div className="text-center">
+              <div className="flex-1 mx-3 h-px bg-zinc-700 relative">
+                <div className="absolute inset-y-0 left-0 w-2/3 bg-orange-500/40" />
+              </div>
+              <div className="text-right">
                 <p className="text-orange-400 font-semibold text-sm">{profile.goal_weight_kg} ק״ג</p>
                 <p className="text-zinc-500 text-[10px] mt-0.5">{d.goalWeight}</p>
               </div>
@@ -203,134 +180,71 @@ export default async function DashboardPage() {
       )}
 
       {program ? (
-        <div className="space-y-4">
-
-          {/* Program summary */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <div>
-                <h2 className="text-white font-semibold text-lg leading-tight">{program.name}</h2>
-                <p className="text-zinc-400 text-sm mt-1.5 leading-relaxed">{program.description}</p>
-              </div>
-              <span className="shrink-0 px-3 py-1 bg-orange-500/20 text-orange-400 text-xs font-semibold rounded-full border border-orange-500/30">
-                {program.split_type}
-              </span>
-            </div>
-            {/* This-week day dots */}
-            <div className="flex items-center gap-2 pt-3 border-t border-zinc-800">
-              <div className="flex gap-1">
-                {days.map(day => (
-                  <div
-                    key={day.day}
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                      completedDays.has(day.day) ? 'bg-green-600 text-white' : 'bg-zinc-800 text-zinc-600'
-                    }`}
-                    title={day.label}
-                  >
-                    {completedDays.has(day.day) ? '✓' : day.day}
-                  </div>
-                ))}
-              </div>
-              <p className="text-zinc-500 text-xs mr-auto">
-                {weeklyCount}/{days.length} {d.weeklyProgress}
-              </p>
-              {remainingThisWeek > 0 && (
-                <span className="text-xs font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
-                  {remainingThisWeek} {d.remaining}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Effort bar — 4-week progression */}
+        <>
+          {/* 4-week block — horizontal bar */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-white font-semibold text-sm">סרגל מאמצים</span>
-              <span className="text-orange-400 text-xs font-medium bg-orange-500/10 border border-orange-500/20 px-2.5 py-1 rounded-full">
-                שבוע {currentWeek} מתוך 4
-              </span>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-white font-semibold text-sm">4-Week Block</span>
+              <span className="text-orange-400 text-xs font-medium">שבוע {currentWeek} מתוך 4</span>
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {WEEKS.map(({ label, sub }, idx) => {
-                const n = idx + 1
-                const isPast    = n < currentWeek
-                const isCurrent = n === currentWeek
-                return (
-                  <div
-                    key={n}
-                    className={`rounded-xl p-3 text-center border transition-colors ${
-                      isCurrent ? 'bg-orange-500/15 border-orange-500/40' :
-                      isPast    ? 'bg-zinc-800/60 border-zinc-700' :
-                                  'bg-zinc-900 border-zinc-800 opacity-35'
-                    }`}
-                  >
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-2 ${
-                      isPast    ? 'bg-green-600 text-white' :
-                      isCurrent ? 'bg-orange-500 text-white' :
-                                  'bg-zinc-700 text-zinc-500'
-                    }`}>
-                      {isPast ? '✓' : n}
-                    </div>
-                    <p className={`text-xs font-semibold leading-tight ${
-                      isCurrent ? 'text-orange-400' : isPast ? 'text-zinc-300' : 'text-zinc-600'
-                    }`}>{label}</p>
-                    <p className={`text-[10px] mt-1 ${isCurrent ? 'text-orange-500/70' : 'text-zinc-600'}`}>{sub}</p>
-                  </div>
-                )
-              })}
-            </div>
-            {/* Connecting line behind the dots */}
-            <div className="relative mt-3 mx-3 h-px bg-zinc-800">
-              <div
-                className="absolute top-0 left-0 h-full bg-orange-500/40 transition-all duration-700"
-                style={{ width: `${((currentWeek - 1) / 3) * 100}%` }}
-              />
+            <div className="flex gap-1 h-2 rounded-full overflow-hidden">
+              {[1, 2, 3, 4].map(n => (
+                <div
+                  key={n}
+                  className={`flex-1 rounded-full transition-colors ${
+                    n < currentWeek  ? 'bg-green-500' :
+                    n === currentWeek ? 'bg-orange-500' :
+                                        'bg-zinc-700'
+                  }`}
+                />
+              ))}
             </div>
           </div>
 
           {/* Training day cards */}
-          {days.map(day => {
-            const isDone = completedDays.has(day.day)
-            return (
-              <Link
-                key={day.label}
-                href={`/workout/${program.id}/${day.day}`}
-                className={`block rounded-2xl p-5 border transition-colors ${
-                  isDone
-                    ? 'bg-green-950/20 border-green-800/40 hover:border-green-700'
-                    : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className={`font-semibold ${isDone ? 'text-green-400' : 'text-white'}`}>{day.label}</h3>
-                  <div className="flex items-center gap-2">
-                    {isDone && (
-                      <span className="text-[10px] font-semibold text-green-400 bg-green-900/40 border border-green-800/50 px-2 py-0.5 rounded-full">
-                        {d.completedThisWeek}
-                      </span>
-                    )}
-                    <span className="text-zinc-500 text-xs">←</span>
-                  </div>
-                </div>
-                <ul className="space-y-2">
-                  {day.exercises.map((name, i) => (
-                    <li key={i} className="flex items-center gap-2.5 text-sm text-zinc-300">
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isDone ? 'bg-green-500' : 'bg-orange-500'}`} />
-                      {name}
-                    </li>
-                  ))}
-                </ul>
-              </Link>
-            )
-          })}
+          <div>
+            <p className="text-zinc-500 text-xs font-semibold uppercase tracking-widest mb-3">האימונים השבוע</p>
+            <div className="space-y-3">
+              {days.map(day => {
+                const isDone = completedDays.has(day.day)
+                return (
+                  <Link
+                    key={day.label}
+                    href={`/workout/${program.id}/${day.day}`}
+                    className={`block rounded-2xl p-5 border transition-colors ${
+                      isDone
+                        ? 'bg-green-950/30 border-green-800/50 hover:border-green-700'
+                        : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className={`font-bold text-base ${isDone ? 'text-green-400' : 'text-white'}`}>{day.label}</h3>
+                      {isDone
+                        ? <span className="text-green-400 text-lg font-bold">✓</span>
+                        : <span className="text-zinc-600 text-sm">←</span>
+                      }
+                    </div>
+                    <ul className="space-y-1.5">
+                      {day.exercises.map((name, i) => (
+                        <li key={i} className="flex items-center gap-2.5 text-sm text-zinc-400">
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isDone ? 'bg-green-500' : 'bg-orange-500'}`} />
+                          {name}
+                        </li>
+                      ))}
+                    </ul>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
 
-          <p className="text-center text-zinc-600 text-xs pt-2">
+          <p className="text-center text-zinc-600 text-xs pt-1">
             {d.notExpected}{' '}
             <Link href="/onboarding" className="text-zinc-400 hover:text-white underline underline-offset-2">
               {d.regenerate}
             </Link>
           </p>
-        </div>
+        </>
       ) : (
         <div className="bg-zinc-900 border border-dashed border-zinc-700 rounded-2xl p-10 text-center">
           <div className="text-4xl mb-4">⚡</div>
