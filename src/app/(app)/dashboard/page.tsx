@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { t } from '@/lib/i18n/translations'
+import { t, ADMIN_EMAIL } from '@/lib/i18n/translations'
 import LogoutButton from '@/components/LogoutButton'
 
 const d = t.dashboard
@@ -128,9 +128,11 @@ export default async function DashboardPage() {
           <Link href="/history" className="text-sm text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-xl transition-colors">
             {t.history.link}
           </Link>
-          <Link href="/coach" className="text-sm text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-xl transition-colors">
-            {t.coach.dashboardLink}
-          </Link>
+          {user!.email === ADMIN_EMAIL && (
+            <Link href="/coach" className="text-sm text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-xl transition-colors">
+              {t.coach.dashboardLink}
+            </Link>
+          )}
           <Link href="/settings" className="text-sm text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-4 py-2 rounded-xl transition-colors">
             {t.settings.link}
           </Link>

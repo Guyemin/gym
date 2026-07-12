@@ -1,6 +1,8 @@
+export const ADMIN_EMAIL = 'guyemin@gmail.com'
+
 export const t = {
-  brand: 'GymCoach AI',
-  tagline: 'המאמן האישי שלך',
+  brand: 'Rot&Guy',
+  tagline: 'המאמן הדיגיטלי שלך',
   signOut: 'התנתק',
   day: 'יום',
 
@@ -64,6 +66,12 @@ export const t = {
     ratingTitle: 'איך היה האימון?',
     skipRating: 'דלג →',
     saving: 'שומר...',
+    // Exercise swap
+    swapBtn: 'החלף',
+    swapTitle: 'בחר תרגיל חלופי',
+    swapCancel: 'ביטול',
+    homeMode: 'אני בבית — החלף הכל',
+    swapped: 'הוחלף',
   },
 
   history: {
@@ -75,6 +83,8 @@ export const t = {
     totalWorkouts: 'אימונים',
     totalHours: 'שעות אימון',
     sets: 'סטים',
+    deleteBtn: 'מחק',
+    deleteConfirm: 'למחוק את האימון הזה?',
   },
 
   settings: {
@@ -172,6 +182,7 @@ export const t = {
       kettlebell: 'קטלבל',
       bodyweight: 'משקל גוף בלבד',
       gym:        'חדר כושר',
+      home:       'אימון בית 🏠',
     },
     injuries: 'פציעות או מגבלות',
     injuriesOptional: '(אופציונלי)',

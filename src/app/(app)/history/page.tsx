@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { t } from '@/lib/i18n/translations'
+import DeleteWorkoutButton from '@/components/DeleteWorkoutButton'
 
 const h = t.history
 
@@ -109,6 +110,9 @@ export default async function HistoryPage() {
                   <div>
                     <p className="text-white font-semibold text-sm">{sess.day_label ?? `יום ${sess.day_of_week}`}</p>
                     <p className="text-zinc-500 text-xs mt-0.5">{fmtDate(sess.completed_at)}</p>
+                    <div className="mt-1" onClick={e => e.preventDefault()}>
+                      <DeleteWorkoutButton sessionId={sess.id} />
+                    </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {sess.rating && (

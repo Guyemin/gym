@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { t } from '@/lib/i18n/translations'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -9,6 +10,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
+      <header className="border-b border-zinc-900 px-4 py-3 flex items-center justify-center">
+        <span className="text-lg font-black text-white tracking-tight">{t.brand}</span>
+      </header>
       {children}
     </div>
   )

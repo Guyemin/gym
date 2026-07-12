@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { t } from '@/lib/i18n/translations'
+import { t, ADMIN_EMAIL } from '@/lib/i18n/translations'
 
 const c = t.coach
 const goals = t.onboarding.goals
@@ -12,6 +12,7 @@ export default async function CoachPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+  if (user.email !== ADMIN_EMAIL) redirect('/dashboard')
 
   // Query all clients who have completed onboarding, with their programs
   const { data: clients } = await supabaseAdmin

@@ -19,7 +19,7 @@ type FormData = {
   injuries_notes: string
 }
 
-const EQUIPMENT_IDS = ['barbell', 'dumbbell', 'cable', 'machine', 'kettlebell', 'bodyweight', 'gym'] as const
+const EQUIPMENT_IDS = ['barbell', 'dumbbell', 'cable', 'machine', 'kettlebell', 'bodyweight', 'gym', 'home'] as const
 const GOAL_KEYS    = ['hypertrophy', 'strength', 'fat_loss', 'general_fitness'] as const
 const LEVEL_KEYS   = ['beginner', 'intermediate', 'advanced'] as const
 

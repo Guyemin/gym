@@ -167,8 +167,11 @@ async function validateAndCorrectProgram(
   client: { experience_level: string; weight_kg: number; primary_goal: string; equipment: string[] }
 ): Promise<any> {
   const isBodyweightOnly = client.equipment.length === 1 && client.equipment[0] === 'bodyweight'
+  const isHomeTraining = client.equipment.includes('home')
   const equipmentStr = isBodyweightOnly
     ? 'bodyweight only — no barbells, dumbbells, cables, or machines'
+    : isHomeTraining
+    ? 'home training — bodyweight + light dumbbells only, no barbells, cables, or machines'
     : client.equipment.join(', ')
 
   try {
@@ -223,9 +226,13 @@ function buildPrompt(p: {
   }
 
   const isBodyweightOnly = p.equipmentRaw.length === 1 && p.equipmentRaw[0] === 'bodyweight'
+  const isHomeTraining = p.equipmentRaw.includes('home')
   const equipmentConstraint = isBodyweightOnly
     ? `⚠️ BODYWEIGHT ONLY — ABSOLUTE RULE: Do NOT include any exercise using barbells, dumbbells, cables, resistance bands, or machines. This is non-negotiable.
 ONLY use these exercises: Push-Ups, Wide Push-Ups, Diamond Push-Ups, Pike Push-Ups, Decline Push-Ups, Pull-Ups, Chin-Ups, Inverted Rows, Dips, Triceps Dips, Bodyweight Squats, Jump Squats, Bulgarian Split Squats, Lunges, Reverse Lunges, Step-Ups, Glute Bridge, Single-Leg Glute Bridge, Hip Thrust (bodyweight), Plank, Side Plank, Mountain Climbers, Burpees, Hollow Body Hold, Leg Raises, Flutter Kicks, Superman.`
+    : isHomeTraining
+    ? `🏠 HOME TRAINING — No gym equipment available. Use only: bodyweight exercises + light dumbbells (up to 20kg) if available. No barbells, cables, or machines.
+Preferred exercises: Push-Ups (all variations), Pull-Ups (if bar available), Dips, Bodyweight Squats, Lunges, Bulgarian Split Squats, Glute Bridge, Hip Thrust, Plank, Mountain Climbers, Dumbbell Press, Dumbbell Row, Dumbbell Curl, Dumbbell Lateral Raise, Goblet Squat.`
     : `Available equipment: ${p.equipment}. Use ONLY exercises possible with this equipment. Do NOT add exercises requiring equipment not listed.`
 
   return `You are an elite Israeli personal trainer. Generate a personalized workout program.
