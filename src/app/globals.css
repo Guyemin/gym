@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #f7f3ec;
+  --card: #ffffff;
+  --card-2: #f1ebe0;
+  --ink: #1d2a2a;
+  --muted: #66706d;
+  --line: #e4dccd;
+  --brand: #0e7468;
+  --brand-ink: #ffffff;
+  --brand-soft: #d9efe9;
+  --accent: #c7802a;
+  --accent-soft: #f8e8d0;
+  --good: #1f9d55;
+  --good-soft: #dcf4e4;
+  --bad: #d64545;
+  --bad-soft: #fbe1e1;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #101716;
+    --card: #182221;
+    --card-2: #1f2b2a;
+    --ink: #eef2ef;
+    --muted: #9aa7a3;
+    --line: #2b3a38;
+    --brand: #2fb5a2;
+    --brand-ink: #062320;
+    --brand-soft: #173a35;
+    --accent: #e9a54f;
+    --accent-soft: #3a2c19;
+    --good: #45c37b;
+    --good-soft: #163525;
+    --bad: #f07272;
+    --bad-soft: #3d1d1d;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-sans: var(--font-rubik), system-ui, sans-serif;
+  --font-arabic: var(--font-naskh), "Noto Naskh Arabic", "Geeza Pro", serif;
 }
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ar {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  line-height: 1.9;
+}
+
+.pattern {
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--brand) 18%, transparent) 1px, transparent 0);
+  background-size: 18px 18px;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.96); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop { animation: pop 0.22s ease-out; }
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--bad) 50%, transparent); }
+  100% { box-shadow: 0 0 0 18px transparent; }
+}
+.listening { animation: pulse-ring 1.1s infinite; }
+
+.flip { perspective: 1200px; }
+.flip-inner { transition: transform 0.45s; transform-style: preserve-3d; }
+.flip-inner.flipped { transform: rotateY(180deg); }
+.flip-face { backface-visibility: hidden; }
+.flip-back { transform: rotateY(180deg); }
