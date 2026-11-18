@@ -14,6 +14,7 @@ const ITEMS = [
 
 export default function BottomNav() {
   const path = usePathname();
+  if (path.startsWith("/login")) return null;
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
       <ul className="mx-auto flex max-w-2xl">

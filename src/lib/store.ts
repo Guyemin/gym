@@ -21,6 +21,7 @@ export type Progress = {
   letters: Record<string, true>; // letters studied
   cards: Record<string, Card>; // spaced repetition deck
   settings: Settings;
+  updatedAt: number; // last local change, used for cloud sync
 };
 
 const KEY = "arabic-progress-v1";
@@ -42,6 +43,7 @@ const EMPTY: Progress = {
   letters: {},
   cards: {},
   settings: DEFAULT_SETTINGS,
+  updatedAt: 0,
 };
 
 let state: Progress = EMPTY;
@@ -89,8 +91,27 @@ function save() {
 
 export function update(fn: (p: Progress) => Progress) {
   load();
-  state = fn(state);
+  state = { ...fn(state), updatedAt: Date.now() };
   save();
+}
+
+export function getState() {
+  load();
+  return state;
+}
+
+/** Replace the whole state (used when pulling from the cloud). */
+export function replaceState(p: Partial<Progress>) {
+  state = { ...EMPTY, ...p, settings: { ...DEFAULT_SETTINGS, ...p.settings } };
+  loaded = true;
+  save();
+}
+
+export function onChange(l: () => void) {
+  listeners.add(l);
+  return () => {
+    listeners.delete(l);
+  };
 }
 
 function subscribe(l: () => void) {

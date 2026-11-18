@@ -4,6 +4,7 @@ import { useState } from "react";
 import { speak, useVoices } from "@/lib/speech";
 import { resetProgress, setSettings, useProgress } from "@/lib/store";
 import PageHeader from "@/components/PageHeader";
+import { signOut, useSync } from "@/lib/sync";
 
 const REC_LANGS = [
   { v: "ar-JO", label: "ירדנית (הכי קרוב לפלסטינית)" },
@@ -22,6 +23,8 @@ export default function SettingsPage() {
   return (
     <main className="space-y-4">
       <PageHeader title="הגדרות" back="/" />
+
+      <AccountCard />
 
       <Card title="🔊 השמעה">
         <label className="block text-sm">
@@ -119,7 +122,7 @@ export default function SettingsPage() {
             <div className="text-xl font-bold">{Object.keys(p.cards).length}</div>כרטיסיות
           </div>
         </div>
-        <p className="mt-2 text-xs text-muted">ההתקדמות נשמרת בדפדפן הזה במכשיר הזה.</p>
+        <p className="mt-2 text-xs text-muted">ההתקדמות נשמרת בחשבון שלך בענן, ועותק גיבוי נשמר גם בדפדפן.</p>
         {confirm ? (
           <div className="mt-3 flex gap-2">
             <button
@@ -151,5 +154,32 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
       <h2 className="mb-3 font-bold">{title}</h2>
       {children}
     </section>
+  );
+}
+
+const STATUS: Record<string, { text: string; cls: string }> = {
+  loading: { text: "טוען מהענן…", cls: "bg-card-2 text-muted" },
+  saving: { text: "שומר…", cls: "bg-card-2 text-muted" },
+  synced: { text: "✓ מסונכרן לענן", cls: "bg-good-soft text-good" },
+  error: { text: "⚠ בעיה בסנכרון – נשמר בינתיים במכשיר", cls: "bg-bad-soft text-bad" },
+};
+
+function AccountCard() {
+  const sync = useSync();
+  if (sync.status === "off") return null;
+  const st = STATUS[sync.status];
+  return (
+    <Card title="👤 החשבון שלי">
+      <div className="text-sm" dir="ltr">
+        {sync.email}
+      </div>
+      <div className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${st.cls}`}>{st.text}</div>
+      {sync.lastSynced && (
+        <div className="mt-1 text-xs text-muted">סנכרון אחרון: {new Date(sync.lastSynced).toLocaleTimeString("he-IL")}</div>
+      )}
+      <button onClick={() => signOut()} className="mt-3 block text-sm font-semibold text-bad">
+        התנתקות
+      </button>
+    </Card>
   );
 }

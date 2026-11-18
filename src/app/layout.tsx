@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Rubik, Noto_Naskh_Arabic } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
+import CloudSync from "@/components/CloudSync";
 
 const rubik = Rubik({ subsets: ["hebrew", "latin"], variable: "--font-rubik" });
 const naskh = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-naskh", weight: ["400", "500", "600", "700"] });
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-dvh antialiased">
         <div className="mx-auto max-w-2xl px-4 pb-28 pt-4">{children}</div>
         <BottomNav />
+        <CloudSync />
       </body>
     </html>
   );
