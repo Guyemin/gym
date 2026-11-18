@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# احكي · אִחְכִּי – לומדים ערבית
 
-## Getting Started
+An app for Hebrew speakers learning Arabic: reading Arabic script and speaking colloquial Palestinian/Levantine Arabic.
 
-First, run the development server:
+## What's inside
+- **Alphabet (אלפבית)** – all 28 letters taught in shape families. Each letter page covers its four positional forms, how to pronounce it, syllables you can tap to hear, example words, a tracing pad for writing practice and a microphone check.
+- **Vowels (תנועות)** – the harakat (short vowels), sukun, shadda, tanween and long vowels.
+- **Reading (קריאה)** – 9 graded lessons, going from first words to the definite article *al-*, short sentences, street signs, text without vowel marks and a short story. Each lesson has a learn mode and a read-aloud practice mode.
+- **Spoken Arabic (ערבית מדוברת)** – 11 topics with Hebrew transliteration, notes on masculine and feminine forms, and a quiz for each topic.
+- **Dialogues (שיחות)** – 4 everyday conversations. You can listen to the whole conversation or role-play one of the two speakers.
+- **Practice (תרגול)** – 6 quiz modes plus spaced-repetition flashcards.
+- XP, daily goal, streak and levels. Progress is saved in the browser's localStorage.
 
+Audio uses the browser's built-in text-to-speech (Web Speech API). Pronunciation checking uses the browser's speech recognition, which works best in Chrome.
+
+## Run locally
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Login and cloud progress (Supabase)
+The app uses the Supabase environment variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`. No manual Supabase setup is needed.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Login required:** every page requires login with an existing Supabase account. The app has no sign-up page.
+- **Owner lock:** the first account that logs in becomes the owner, recorded in `owner.json` in the storage bucket. Every other account is signed out and refused.
+- **Progress storage:** progress is stored as JSON in a private Storage bucket called `arabic-progress` (`users/<id>.json`), which the app creates automatically. It goes through `/api/progress` and is saved about 1.5 seconds after each change, again when you leave the app, and reloaded when you come back.
+- **Optional allow-list:** set `ALLOWED_EMAILS` to restrict access to specific emails.
+- **Without Supabase variables** (for example in local dev), the app runs without login and keeps progress only in the browser.

@@ -1,23 +1,35 @@
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import "./globals.css"
+import type { Metadata, Viewport } from "next";
+import { Rubik, Noto_Naskh_Arabic } from "next/font/google";
+import "./globals.css";
+import BottomNav from "@/components/BottomNav";
+import CloudSync from "@/components/CloudSync";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] })
+const rubik = Rubik({ subsets: ["hebrew", "latin"], variable: "--font-rubik" });
+const naskh = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-naskh", weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
-  title: "GymCoach AI",
-  description: "המאמן האישי שלך",
-}
+  title: "אִחְכִּי · احكي – לומדים ערבית",
+  description: "לומדים לקרוא ולדבר ערבית: אלפבית, קריאה, ערבית מדוברת, תרגול הגייה וחזרות.",
+  appleWebApp: { capable: true, title: "אחכי", statusBarStyle: "default" },
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f3ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#101716" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="he"
-      dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="he" dir="rtl" className={`${rubik.variable} ${naskh.variable}`}>
+      <body className="min-h-dvh antialiased">
+        <div className="mx-auto max-w-2xl px-4 pb-28 pt-4">{children}</div>
+        <BottomNav />
+        <CloudSync />
+      </body>
     </html>
-  )
+  );
 }

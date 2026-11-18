@@ -1,68 +1,77 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { isOwner } from "@/lib/supabase/admin";
 
-// In Next.js 16, middleware.ts is deprecated — this file is proxy.ts
-// The exported function must be named `proxy`
+// Next.js 16: middleware.ts was renamed to proxy.ts, exported function must be `proxy`.
 export async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Without Supabase configured (e.g. local dev) the app runs without login, progress stays in the browser.
+  if (!url || !key) return NextResponse.next();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet, cacheHeaders) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-          Object.entries(cacheHeaders).forEach(([key, value]) =>
-            supabaseResponse.headers.set(key, value)
-          )
-        },
+  let response = NextResponse.next({ request });
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  )
+      setAll(cookiesToSet, cacheHeaders) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        response = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        Object.entries(cacheHeaders ?? {}).forEach(([k, v]) => response.headers.set(k, v as string));
+      },
+    },
+  });
 
-  // Refresh session — this is the critical call that keeps auth alive.
-  // Do NOT use getSession() here — getUser() validates with the Auth server.
+  // getUser() validates the session with the auth server (do not use getSession here).
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  const url = request.nextUrl.clone()
-  const isAuthRoute =
-    url.pathname.startsWith('/login') || url.pathname.startsWith('/signup')
-  const isProtectedRoute =
-    url.pathname.startsWith('/dashboard') ||
-    url.pathname.startsWith('/workout') ||
-    url.pathname.startsWith('/onboarding') ||
-    url.pathname.startsWith('/settings') ||
-    url.pathname.startsWith('/coach') ||
-    url.pathname.startsWith('/history')
+  const path = request.nextUrl.pathname;
+  const isPublic = path.startsWith("/login") || path.startsWith("/auth");
 
-  if (!user && isProtectedRoute) {
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+  // Optional allow-list: ALLOWED_EMAILS="me@example.com,other@example.com"
+  const allowed = (process.env.ALLOWED_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  let permitted = !!user && (allowed.length === 0 || allowed.includes((user.email ?? "").toLowerCase()));
+  // Single-owner lock: the first account to log in owns the app; anyone else is refused.
+  if (user && permitted) {
+    try {
+      permitted = await isOwner(user.id);
+    } catch (e) {
+      console.error("owner check failed", e);
+    }
   }
 
-  if (user && isAuthRoute) {
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+  if (user && !permitted) {
+    await supabase.auth.signOut();
+    const to = request.nextUrl.clone();
+    to.pathname = "/login";
+    to.search = "?error=not_allowed";
+    return NextResponse.redirect(to);
   }
 
-  return supabaseResponse
+  if (!permitted && !isPublic) {
+    const to = request.nextUrl.clone();
+    to.pathname = "/login";
+    to.search = "";
+    return NextResponse.redirect(to);
+  }
+
+  if (permitted && path.startsWith("/login")) {
+    const to = request.nextUrl.clone();
+    to.pathname = "/";
+    to.search = "";
+    return NextResponse.redirect(to);
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: [
-    // Run on all paths except Next.js internals and static assets
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
-}
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+};
