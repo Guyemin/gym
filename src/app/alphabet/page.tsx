@@ -24,7 +24,7 @@ export default function AlphabetPage() {
           ⚡ חידון אותיות
         </Link>
         <Link href="/vowels" className="rounded-2xl border border-line bg-card p-3 text-center font-bold">
-          ◌َ תנועות (חרכאת)
+          <span className="ar">بَ</span> תנועות (חרכאת)
         </Link>
       </div>
 

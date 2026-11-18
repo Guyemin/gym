@@ -160,7 +160,7 @@ function phrasesQuiz(): Question[] {
 export const QUIZ_MODES: QuizMode[] = [
   { id: "letters", title: "זיהוי אותיות", desc: "רואים אות – בוחרים מה היא, ולהפך", emoji: "🔤", make: lettersQuiz },
   { id: "forms", title: "צורות אותיות", desc: "זיהוי אות בתחילת, אמצע וסוף מילה", emoji: "🧩", make: formsQuiz },
-  { id: "vowels", title: "תנועות", desc: "קריאת הברות עם חרכאת", emoji: "◌َ", make: vowelsQuiz },
+  { id: "vowels", title: "תנועות", desc: "קריאת הברות עם חרכאת", emoji: "بَ", make: vowelsQuiz },
   { id: "reading", title: "קריאת מילים", desc: "קוראים מילה ובוחרים את התעתיק", emoji: "📖", make: readingQuiz },
   { id: "listening", title: "הבנת הנשמע", desc: "שומעים מילה ומוצאים אותה כתובה", emoji: "🎧", make: listeningQuiz },
   { id: "phrases", title: "ביטויים מדוברים", desc: "תרגום ביטויים מכל הנושאים", emoji: "💬", make: phrasesQuiz },
