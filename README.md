@@ -20,11 +20,10 @@ npm run dev
 ```
 
 ## Login and cloud progress (Supabase)
-The app uses the Supabase environment variables `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. When they are set, every page requires login. When they are not set (for example in local dev), the app runs without login and keeps progress only in the browser.
+The app uses the Supabase environment variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`. No manual Supabase setup is needed.
 
-1. Run `supabase/schema.sql` once in the Supabase SQL Editor.
-2. In Supabase, go to Authentication → Sign In / Providers and turn off **Allow new users to sign up**.
-3. Optional: in Vercel, set `ALLOWED_EMAILS` to your email address. Any other account is signed out and blocked.
-4. To use the "email me a login link" option, add `https://<your-domain>/auth/callback` to the redirect URLs under Authentication → URL Configuration.
-
-Progress is saved to the `arabic_progress` table about 1.5 seconds after each change, and again when you leave the app. When you come back to the app, it loads the newest version, so the same account works across devices.
+- **Login required:** every page requires login with an existing Supabase account. The app has no sign-up page.
+- **Owner lock:** the first account that logs in becomes the owner, recorded in `owner.json` in the storage bucket. Every other account is signed out and refused.
+- **Progress storage:** progress is stored as JSON in a private Storage bucket called `arabic-progress` (`users/<id>.json`), which the app creates automatically. It goes through `/api/progress` and is saved about 1.5 seconds after each change, again when you leave the app, and reloaded when you come back.
+- **Optional allow-list:** set `ALLOWED_EMAILS` to restrict access to specific emails.
+- **Without Supabase variables** (for example in local dev), the app runs without login and keeps progress only in the browser.

@@ -38,30 +38,40 @@ let applyingRemote = false;
 let timer: ReturnType<typeof setTimeout> | null = null;
 let started = false;
 
-async function push() {
+async function push(keepalive = false) {
   if (!userId) return;
   if (timer) {
     clearTimeout(timer);
     timer = null;
   }
   setStatus("saving");
-  const data = getState();
-  const { error } = await createClient()
-    .from("arabic_progress")
-    .upsert({ user_id: userId, data, updated_at: new Date(data.updatedAt || Date.now()).toISOString() });
-  setStatus(error ? "error" : "synced");
-  if (error) console.error("sync push failed", error.message);
+  try {
+    const res = await fetch("/api/progress", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: getState() }),
+      keepalive,
+    });
+    setStatus(res.ok ? "synced" : "error");
+    if (!res.ok) console.error("sync push failed", res.status);
+  } catch (e) {
+    setStatus("error");
+    console.error("sync push failed", e);
+  }
 }
 
 async function pull() {
   if (!userId) return;
-  const { data, error } = await createClient().from("arabic_progress").select("data").eq("user_id", userId).maybeSingle();
-  if (error) {
-    console.error("sync pull failed", error.message);
+  let remote: Progress | undefined;
+  try {
+    const res = await fetch("/api/progress", { cache: "no-store" });
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    remote = ((await res.json()).data ?? undefined) as Progress | undefined;
+  } catch (e) {
+    console.error("sync pull failed", e);
     setStatus("error");
     return;
   }
-  const remote = data?.data as Progress | undefined;
   const local = getState();
   if (remote && (remote.updatedAt ?? 0) > (local.updatedAt ?? 0)) {
     applyingRemote = true;
@@ -99,7 +109,7 @@ export async function startSync() {
   // save before leaving, and pick up changes made on another device when coming back
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
-      if (timer) push();
+      if (timer) push(true);
     } else if (!timer) {
       pull();
     }

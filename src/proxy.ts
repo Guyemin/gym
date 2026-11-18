@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isOwner } from "@/lib/supabase/admin";
 
 // Next.js 16: middleware.ts was renamed to proxy.ts, exported function must be `proxy`.
 export async function proxy(request: NextRequest) {
@@ -36,7 +37,15 @@ export async function proxy(request: NextRequest) {
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
-  const permitted = !!user && (allowed.length === 0 || allowed.includes((user.email ?? "").toLowerCase()));
+  let permitted = !!user && (allowed.length === 0 || allowed.includes((user.email ?? "").toLowerCase()));
+  // Single-owner lock: the first account to log in owns the app; anyone else is refused.
+  if (user && permitted) {
+    try {
+      permitted = await isOwner(user.id);
+    } catch (e) {
+      console.error("owner check failed", e);
+    }
+  }
 
   if (user && !permitted) {
     await supabase.auth.signOut();
