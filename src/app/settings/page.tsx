@@ -4,6 +4,7 @@ import { useState } from "react";
 import { speak, useVoices } from "@/lib/speech";
 import { resetProgress, setSettings, useProgress } from "@/lib/store";
 import PageHeader from "@/components/PageHeader";
+import VoiceHelp from "@/components/VoiceHelp";
 import { signOut, useSync } from "@/lib/sync";
 
 const REC_LANGS = [
@@ -54,18 +55,15 @@ export default function SettingsPage() {
             ))}
           </select>
         </label>
-        {voices.length === 0 && (
-          <p className="mt-2 rounded-xl bg-accent-soft p-3 text-xs leading-relaxed">
-            לא נמצא קול ערבי במכשיר. באייפון: הגדרות ← נגישות ← תוכן מוקרא ← קולות ← ערבית. באנדרואיד: הגדרות ← המרת טקסט לדיבור ←
-            התקנת נתוני קול ← ערבית.
-          </p>
-        )}
         <button
           onClick={() => speak("مَرْحَبا، كِيفَك؟", { rate: s.rate, voiceURI: s.voiceURI })}
           className="mt-3 rounded-full bg-brand-soft px-4 py-2 text-sm font-semibold text-brand"
         >
           ▶ בדיקת קול
         </button>
+        <div className="mt-3">
+          <VoiceHelp always />
+        </div>
       </Card>
 
       <Card title="🎙️ זיהוי דיבור">

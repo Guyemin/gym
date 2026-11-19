@@ -24,7 +24,6 @@ export type SpeakOpts = { rate?: number; voiceURI?: string; onEnd?: () => void }
 export function speak(text: string, opts: SpeakOpts = {}) {
   if (!ttsSupported()) return;
   const synth = window.speechSynthesis;
-  synth.cancel();
   const u = new SpeechSynthesisUtterance(text);
   const voices = arabicVoices();
   const voice =
@@ -35,11 +34,50 @@ export function speak(text: string, opts: SpeakOpts = {}) {
   if (voice) u.voice = voice;
   u.lang = voice?.lang ?? "ar-SA";
   u.rate = opts.rate ?? 0.85;
+  u.volume = 1;
   if (opts.onEnd) {
     u.onend = opts.onEnd;
     u.onerror = opts.onEnd;
   }
-  synth.speak(u);
+  // keep a reference so Chrome does not garbage-collect the utterance (which drops onend)
+  (window as unknown as { __arUtterance?: SpeechSynthesisUtterance }).__arUtterance = u;
+  // Safari on iPhone drops an utterance queued right after cancel(), so only cancel when something is playing.
+  if (synth.speaking || synth.pending) {
+    synth.cancel();
+    setTimeout(() => {
+      synth.speak(u);
+      synth.resume();
+    }, 80);
+  } else {
+    synth.speak(u);
+    synth.resume(); // Chrome on Android can get stuck in a paused state
+  }
+}
+
+/** True once the voice list has loaded and contains no Arabic voice. */
+export function useNoArabicVoice() {
+  const [missing, setMissing] = useState(false);
+  useEffect(() => {
+    if (!ttsSupported()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- feature detection after mount
+      setMissing(true);
+      return;
+    }
+    const check = (final = false) => {
+      const all = window.speechSynthesis.getVoices();
+      // an empty list may still be loading – only treat it as "missing" after waiting a bit
+      if (all.length || final) setMissing(!all.some((v) => v.lang.toLowerCase().startsWith("ar")));
+    };
+    check();
+    const t = setTimeout(() => check(true), 2000);
+    const onChange = () => check();
+    window.speechSynthesis.addEventListener("voiceschanged", onChange);
+    return () => {
+      clearTimeout(t);
+      window.speechSynthesis.removeEventListener("voiceschanged", onChange);
+    };
+  }, []);
+  return missing;
 }
 
 export function stopSpeaking() {
