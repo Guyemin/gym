@@ -4,9 +4,20 @@ import { useEffect, useState } from "react";
 import { createClient, supabaseConfigured } from "@/lib/supabase/client";
 
 const ERRORS: Record<string, string> = {
-  not_allowed: "לחשבון הזה אין גישה לאפליקציה.",
+  not_allowed: "לחשבון הזה אין גישה – האפליקציה נעולה לחשבון הראשון שהתחבר אליה.",
   link_failed: "קישור ההתחברות לא תקין או שפג תוקפו. נסו שוב.",
 };
+
+function explain(msg: string) {
+  const m = msg.toLowerCase();
+  if (m.includes("invalid login credentials")) return "אימייל או סיסמה שגויים. אפשר ללחוץ על ״שכחתי סיסמה״ ולקבל קישור למייל.";
+  if (m.includes("email not confirmed")) return "המייל עוד לא אומת. חפשו מייל אימות מ-Supabase (גם בספאם).";
+  if (m.includes("rate limit") || m.includes("security purposes") || m.includes("too many"))
+    return "נשלחו יותר מדי בקשות. חכו כמה דקות ונסו שוב.";
+  if (m.includes("signups not allowed") || m.includes("user not found")) return "לא נמצא חשבון עם המייל הזה.";
+  if (m.includes("failed to fetch") || m.includes("network")) return "אין חיבור לשרת. בדקו את האינטרנט ונסו שוב.";
+  return `ההתחברות נכשלה (${msg})`;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -38,7 +49,7 @@ export default function LoginPage() {
     remember();
     const { error } = await createClient().auth.signInWithPassword({ email, password });
     if (error) {
-      setError(error.message === "Invalid login credentials" ? "אימייל או סיסמה שגויים" : error.message);
+      setError(explain(error.message));
       setLoading(false);
       return;
     }
@@ -56,7 +67,7 @@ export default function LoginPage() {
       options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
     setLoading(false);
-    if (error) setError("לא ניתן לשלוח קישור לאימייל הזה.");
+    if (error) setError(explain(error.message));
     else setInfo("שלחנו לך קישור התחברות למייל 📬");
   }
 

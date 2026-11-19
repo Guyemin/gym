@@ -30,6 +30,15 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // An email login link can land on any page (e.g. the site root) with ?code=… – finish the login there.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && !path.startsWith("/auth")) {
+    const to = request.nextUrl.clone();
+    to.pathname = "/auth/callback";
+    to.search = `?code=${encodeURIComponent(code)}`;
+    return NextResponse.redirect(to);
+  }
   const isPublic = path.startsWith("/login") || path.startsWith("/auth");
 
   // Optional allow-list: ALLOWED_EMAILS="me@example.com,other@example.com"

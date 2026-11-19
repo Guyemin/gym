@@ -7,6 +7,7 @@ import { DIALOGUES, TOPICS } from "@/data/speaking";
 import { useDueCount, useProgress } from "@/lib/store";
 import { DailyRing } from "@/components/Stats";
 import { IconSettings } from "@/components/icons";
+import VoiceHelp from "@/components/VoiceHelp";
 
 export default function Home() {
   const p = useProgress();
@@ -44,6 +45,8 @@ export default function Home() {
           <IconSettings />
         </Link>
       </header>
+
+      <VoiceHelp />
 
       <DailyRing />
 
